@@ -1,0 +1,86 @@
+// Data model for the SMB loan origination copilot.
+// Design intent: every AI-produced value is traceable (source quote + confidence),
+// reviewable by a human (verified flag), and every change is logged (AuditLog).
+// That traceability is what makes an AI tool usable inside a regulated bank.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum AppStatus {
+  INTAKE
+  NEEDS_REVIEW
+  REVIEWED
+  DECISIONED
+}
+
+enum DocType {
+  BANK_STATEMENT
+  TAX_RETURN
+  FINANCIAL_STATEMENT
+  OTHER
+}
+
+model Application {
+  id            String           @id @default(cuid())
+  businessName  String
+  applicantName String
+  loanAmount    Int? // requested amount, whole dollars
+  status        AppStatus        @default(INTAKE)
+  documents     Document[]
+  fields        ExtractedField[]
+  memo          CreditMemo?
+  auditLogs     AuditLog[]
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+}
+
+model Document {
+  id            String      @id @default(cuid())
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  applicationId String
+  type          DocType     @default(BANK_STATEMENT)
+  fileName      String
+  rawText       String // extracted/pasted text we ran the model over
+  uploadedAt    DateTime    @default(now())
+}
+
+model ExtractedField {
+  id            String      @id @default(cuid())
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  applicationId String
+  key           String // machine key, e.g. "monthlyRevenueAvg"
+  label         String // human label, e.g. "Average monthly revenue"
+  value         String // stored as string; numeric keys parsed downstream
+  unit          String? // "USD", "count", etc.
+  confidence    Float       @default(0) // 0..1, model self-reported
+  sourceQuote   String? // the snippet the value was drawn from
+  verified      Boolean     @default(false) // a human confirmed it
+  createdAt     DateTime    @default(now())
+
+  @@unique([applicationId, key])
+}
+
+model CreditMemo {
+  id            String      @id @default(cuid())
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  applicationId String      @unique
+  content       String // markdown draft
+  ratios        Json? // computed ratios snapshot
+  generatedAt   DateTime    @default(now())
+}
+
+model AuditLog {
+  id            String      @id @default(cuid())
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  applicationId String
+  actor         String // "system" or a reviewer name
+  action        String // e.g. "EXTRACTED", "VERIFIED_FIELD", "GENERATED_MEMO"
+  detail        String?
+  createdAt     DateTime    @default(now())
+}
