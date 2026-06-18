@@ -60,33 +60,6 @@ Key files to read first:
 - `src/lib/ratios.ts` — underwriting math, with assumptions made explicit
 - `src/app/applications/[id]/review-client.tsx` — the review UI
 
-## Weekend plan (suggested)
-
-**Day 1** — get the happy path solid: run it, swap in 2–3 real (anonymized) bank
-statement samples, tighten the extraction prompt against them.
-**Day 2** — pick ONE upgrade below, then write the field notes + record a 2-min demo.
-
-Natural next steps (don't do all of them — shipping one well beats five half-built):
-- Real PDF upload (drop a file input + `pdf-parse` in the documents route).
-- Highlight the source quote inside the original document text.
-- A "missing documents" completeness check (tax return present? statements for N months?).
-- Multi-statement support and trend-over-time (revenue stability is a real underwriting signal).
-
-## Field notes (fill this in — it's the most important part)
-
-This is what makes you read as a *forward deployed* engineer rather than someone
-who built another CRUD app. Before or after building, spend 30–60 minutes learning
-how SMB loan underwriting actually works (read about SBA 7(a) underwriting, or
-better, talk to anyone you know in lending). Then write 4–5 sentences here:
-
-> **How the work is done today:** ...
-> **The bottlenecks I found:** ...
-> **What I built to address them, and what I deliberately left to the human:** ...
-> **What I'd want to learn from a real underwriter next:** ...
-
-In an interview, walk through this first, then the demo. The point you're proving
-is exactly the one in the job description: deep empathy for the user *plus* the
-ability to build.
 
 ## A note for the interview
 
