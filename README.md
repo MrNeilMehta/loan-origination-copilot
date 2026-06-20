@@ -61,8 +61,3 @@ Key files to read first:
 - `src/app/applications/[id]/review-client.tsx` — the review UI
 
 
-## A note for the interview
-
-Be ready to say what you'd do differently for production: data handling and PII,
-per-customer prompt tuning, evals on extraction accuracy, and never auto-approving.
-Showing you know where the edges are matters more than feature count.
